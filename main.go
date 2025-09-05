@@ -5,6 +5,8 @@ package main
 import (
 	// Import fmt package for formatted I/O
 	"fmt"
+	"sync"
+
 	// Import runtime package for runtime information
 	"runtime"
 	// Import time package for time-related functions
@@ -13,6 +15,8 @@ import (
 	// Import custom model package
 	"github.com/salens/golang-project/model"
 )
+
+var wg sync.WaitGroup
 
 // init function runs before main
 func init() {
@@ -116,6 +120,118 @@ func main() {
 	// Print the two integers returned by the function
 	fmt.Printf("ReturnTwoInts returned: %d, %d\n", first, second)
 
+	wg.Add(2)
+	go func() {
+		fmt.Print("Hello from goroutine ome\n")
+		wg.Done()
+	}()
+
+	go func() {
+		fmt.Print("Hello from goroutine two\n")
+		wg.Done()
+	}()
+
+	// Create two new channels
+	// Create integer channel for sending numbers between goroutines
+	ch1 := make(chan int)
+	// Create string channel for sending text messages between goroutines
+	ch2 := make(chan string)
+
+	// Anonymous function that sends integer to ch1
+	go func() {
+		// Send the number 100 to ch1 channel
+		ch1 <- 100
+	}()
+
+	// Anonymous function that sends string to ch2
+	go func() {
+		// Send a message to ch2 channel
+		ch2 <- "Message from new channel"
+	}()
+
+	// Receive from new channels
+	// Receive integer value from ch1 channel
+	number := <-ch1
+	// Receive string message from ch2 channel
+	message := <-ch2
+	// Print the received number
+	fmt.Printf("Received number: %d\n", number)
+	// Print the received message
+	fmt.Printf("Received message: %s\n", message)
+
+	// Create a buffered channel with capacity of 3
+	// Buffered channels allow goroutines to send values without blocking until buffer is full
+	ch3 := make(chan string, 3)
+
+	// Anonymous function that sends multiple messages to buffered channel
+	go func() {
+		// Send first message to buffered channel - won't block
+		ch3 <- "First buffered message"
+		// Send second message to buffered channel - won't block
+		ch3 <- "Second buffered message"
+		// Send third message to buffered channel - won't block
+		ch3 <- "Third buffered message"
+		// Close the channel to signal no more values will be sent
+		close(ch3)
+	}()
+
+	// Receive all messages from buffered channel using range
+	// Range will automatically stop when channel is closed
+	for msg := range ch3 {
+		// Print each message received from the buffered channel
+		fmt.Printf("Buffered channel message: %s\n", msg)
+	}
+
+	// Create send-only channel ch4 example
+	ch4 := make(chan int, 2)
+
+	// Anonymous function with send-only channel parameter
+	go func(sendOnly chan<- int) {
+		// Send values through the send-only channel
+		sendOnly <- 42
+		sendOnly <- 100
+	}(ch4)
+
+	// Receive values from ch4 in main
+	val1 := <-ch4
+	val2 := <-ch4
+	fmt.Printf("Received from send-only channel ch4: %d, %d\n", val1, val2)
+
+	// Make send-only channel example
+	//sendCh := make(chan<- string)
+
+	// Make receive-only channel example
+	//receiveCh := make(<-chan int)
+
+	// Demonstrate send-only channel
+	chSend := make(chan string)
+	sendCh := chan<- string(chSend) // convert to send-only
+	go func(sendOnly chan<- string) {
+		sendOnly <- "Hello from send-only channel!"
+		// close is not strictly needed for send-only, but good practice
+		close(chSend)
+	}(sendCh)
+
+	// Receive from the original channel (as receive-only)
+	for msg := range chSend {
+		fmt.Printf("Received from send-only channel: %s\n", msg)
+	}
+
+	// Demonstrate receive-only channel
+	chRecv := make(chan int)
+	go func() {
+		chRecv <- 123
+		close(chRecv)
+	}()
+	// Pass the channel as receive-only to the goroutine
+	go func(receiveOnly <-chan int) {
+		for v := range receiveOnly {
+			fmt.Printf("Received from receive-only channel: %d\n", v)
+		}
+	}(chRecv)
+
+	wg.Wait()
+	fmt.Println("All goroutines complete.")
 	// Record the end time
 	stop := time.Now()
 	// Calculate elapsed time in seconds
