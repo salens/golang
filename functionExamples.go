@@ -36,3 +36,9 @@ func ReturnTwoInts(x int, y int) (int, int) {
 	// Return both input parameters unchanged
 	return x, y
 }
+
+// ProcessThreeStrings takes 3 string arguments and returns 3 strings
+func ProcessThreeStrings(first string, second string, third string) (string, string, string) {
+	// Process the strings and return modified versions
+	return fmt.Sprintf("First: %s", first), fmt.Sprintf("Second: %s", second), fmt.Sprintf("Third: %s", third)
+}

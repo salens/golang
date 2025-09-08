@@ -120,6 +120,11 @@ func main() {
 	// Print the two integers returned by the function
 	fmt.Printf("ReturnTwoInts returned: %d, %d\n", first, second)
 
+	// Call ProcessThreeStrings function with three string arguments
+	str1, str2, str3 := ProcessThreeStrings("hello", "world", "example")
+	// Print the three strings returned by the function
+	fmt.Printf("ProcessThreeStrings returned: %s, %s, %s\n", str1, str2, str3)
+
 	wg.Add(2)
 	go func() {
 		fmt.Print("Hello from goroutine ome\n")
