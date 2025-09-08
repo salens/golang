@@ -244,11 +244,11 @@ func main() {
 	// Start API server in goroutine for testing
 	go StartSimpleAPI()
 
-	// Test the API endpoints
-	TestAPIEndpoints()
-
 	// Give server time to start
 	time.Sleep(1 * time.Second)
+
+	// Test the API endpoints
+	TestAPIEndpoints()
 
 	// Record the end time
 	stop := time.Now()

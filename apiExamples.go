@@ -64,6 +64,15 @@ func deletePerson(w http.ResponseWriter, r *http.Request) {
 
 func setupAPI() {
 	http.HandleFunc("/people", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		
 		switch r.Method {
 		case "POST":
 			createPerson(w, r)
@@ -74,8 +83,12 @@ func setupAPI() {
 		case "DELETE":
 			deletePerson(w, r)
 		default:
-			http.Error(w, "Method not allowed", 405)
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
+	})
+	
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
 	})
 }
 

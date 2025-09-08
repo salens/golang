@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 5px; margin: 5px 0; }
+        #results { background: #f5f5f5; padding: 10px; border-radius: 5px; min-height: 100px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>People API Testing Interface</h1>
+        
+        <div class="section">
+            <h3>Create Person</h3>
+            <input type="text" id="createName" placeholder="Name" value="John Doe">
+            <input type="number" id="createAge" placeholder="Age" value="30">
+            <button onclick="createPerson()" id="createBtn">Create Person</button>
+        </div>
+        
+        <div class="section">
+            <h3>Get All People</h3>
+            <button onclick="getAllPeople()" id="getAllBtn">Get All People</button>
+        </div>
+        
+        <div class="section">
+            <h3>Update Person</h3>
+            <input type="number" id="updateId" placeholder="ID" value="1">
+            <input type="text" id="updateName" placeholder="Name" value="John Updated">
+            <input type="number" id="updateAge" placeholder="Age" value="31">
+            <button onclick="updatePerson()" id="updateBtn">Update Person</button>
+        </div>
+        
+        <div class="section">
+            <h3>Delete Person</h3>
+            <input type="number" id="deleteId" placeholder="ID" value="1">
+            <button onclick="deletePerson()" id="deleteBtn">Delete Person</button>
+        </div>
+        
+        <div class="section">
+            <h3>Results</h3>
+            <div id="results"></div>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = 'http://localhost:8080/people';
+        const resultsDiv = document.getElementById('results');
+
+        function logResult(message, isError = false) {
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            p.className = isError ? 'error' : 'success';
+            resultsDiv.appendChild(p);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        async function createPerson() {
+            const name = document.getElementById('createName').value;
+            const age = parseInt(document.getElementById('createAge').value);
+            
+            try {
+                const response = await fetch(baseURL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, age})
+                });
+                const data = await response.json();
+                logResult(`Created person: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Error creating person: ${error.message}`, true);
+            }
+        }
+
+        async function getAllPeople() {
+            try {
+                const response = await fetch(baseURL);
+                const data = await response.json();
+                logResult(`All people: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Error getting people: ${error.message}`, true);
+            }
+        }
+
+        async function updatePerson() {
+            const id = parseInt(document.getElementById('updateId').value);
+            const name = document.getElementById('updateName').value;
+            const age = parseInt(document.getElementById('updateAge').value);
+            
+            try {
+                const response = await fetch(baseURL, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id, name, age})
+                });
+                const data = await response.json();
+                logResult(`Updated person: ${JSON.stringify(data)}`);
+            } catch (error) {
+                logResult(`Error updating person: ${error.message}`, true);
+            }
+        }
+
+        async function deletePerson() {
+            const id = parseInt(document.getElementById('deleteId').value);
+            
+            try {
+                const response = await fetch(baseURL, {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({id})
+                });
+                if (response.ok) {
+                    logResult(`Deleted person with ID: ${id}`);
+                } else {
+                    logResult(`Failed to delete person with ID: ${id}`, true);
+                }
+            } catch (error) {
+                logResult(`Error deleting person: ${error.message}`, true);
+            }
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
