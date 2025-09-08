@@ -96,7 +96,7 @@ func main() {
 		// Calculate average by dividing sum by number of scores
 		average := sum / float64(len(scores))
 		// Print student information and average score
-		fmt.Printf("Student %s, age %d, has average score: %.2f\n", name, age, average)
+		fmt.Printf("Student %s, age %d, has average score: %.2f\n\n", name, age, average)
 	}("Alice", 20, 85.5, 92.0, 88.5)
 
 	// Print OS and architecture
@@ -237,6 +237,19 @@ func main() {
 
 	wg.Wait()
 	fmt.Println("All goroutines complete.")
+
+	// Demonstrate API examples
+	DemoAPI()
+
+	// Start API server in goroutine for testing
+	go StartSimpleAPI()
+
+	// Test the API endpoints
+	TestAPIEndpoints()
+
+	// Give server time to start
+	time.Sleep(1 * time.Second)
+
 	// Record the end time
 	stop := time.Now()
 	// Calculate elapsed time in seconds
